@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>내용증명 자동 작성</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #1A73E8;
+      --blue-dark: #1557b0;
+      --blue-light: #E8F0FE;
+      --green: #34A853;
+      --green-light: #E6F4EA;
+      --text: #202124;
+      --text-secondary: #5f6368;
+      --text-tertiary: #9aa0a6;
+      --bg: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --border: #e0e0e0;
+      --border-hover: #bdbdbd;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── LAYOUT ── */
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      min-height: 100vh;
+      background: var(--bg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    /* ══════════════════════════════
+       HOME
+    ══════════════════════════════ */
+    #home {
+      align-items: center;
+      justify-content: center;
+      padding: 48px 32px;
+      gap: 28px;
+      text-align: center;
+    }
+
+    .home-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--blue);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .home-headline h1 {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .home-headline h1 span { color: var(--blue); }
+
+    .home-headline p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .home-cta {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 15px 44px;
+      border-radius: var(--radius-full);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(26,115,232,0.3);
+      letter-spacing: -0.01em;
+    }
+
+    .home-cta:hover {
+      background: var(--blue-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26,115,232,0.35);
+    }
+
+    .home-cta:active { transform: scale(0.97); }
+
+    .home-divider {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .home-divider::before,
+    .home-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .home-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tag {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      transition: all 0.15s;
+      cursor: default;
+    }
+
+    .tag:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .home-notice {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.6;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      width: 100%;
+      text-align: left;
+    }
+
+    /* ══════════════════════════════
+       CHAT
+    ══════════════════════════════ */
+    #chat { height: 100vh; }
+
+    .chat-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-back {
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      transition: all 0.15s;
+    }
+
+    .btn-back:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-hover);
+    }
+
+    .chat-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .chat-step {
+      font-size: 12px;
+      color: var(--blue);
+      background: var(--blue-light);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      height: 3px;
+      background: var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--blue);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      animation: fadeUp 0.3s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user { flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .msg.bot .msg-avatar {
+      background: var(--blue-light);
+      color: var(--blue);
+    }
+
+    .msg.user .msg-avatar {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .msg-bubble {
+      max-width: 78%;
+      padding: 11px 15px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .msg.bot .msg-bubble {
+      background: var(--bg-secondary);
+      border-radius: 4px 18px 18px 18px;
+      border: 1px solid var(--border);
+    }
+
+    .msg.user .msg-bubble {
+      background: var(--blue);
+      color: #fff;
+      border-radius: 18px 4px 18px 18px;
+    }
+
+    .quick-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .quick-btn {
+      background: var(--bg);
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      padding: 5px 13px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .quick-btn:hover {
+      background: var(--blue-light);
+    }
+
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-tertiary);
+      animation: blink 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+
+    .chat-input-wrap {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--bg);
+    }
+
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg-secondary);
+      color: var(--text);
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      max-height: 100px;
+      overflow-y: auto;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
+      background: var(--bg);
+    }
+
+    .chat-input::placeholder { color: var(--text-tertiary); }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--blue);
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(26,115,232,0.3);
+    }
+
+    .send-btn:hover { background: var(--blue-dark); }
+    .send-btn:active { transform: scale(0.92); }
+    .send-btn:disabled { background: var(--border); box-shadow: none; cursor: default; }
+
+    /* ══════════════════════════════
+       RESULT
+    ══════════════════════════════ */
+    #result {
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    .result-top {
+      padding: 32px 24px 24px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-check {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+
+    .result-top h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .result-top p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .result-body { padding: 20px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .doc-preview {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+
+    .doc-body {
+      font-size: 13px;
+      line-height: 2;
+      color: var(--text);
+      white-space: pre-wrap;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .doc-highlight {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .action-btns { display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 15px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(26,115,232,0.25);
+    }
+
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 15px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-hover);
+    }
+
+    .agency-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .agency-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .agency-btn:hover {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+
+    .agency-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .agency-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .agency-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: var(--radius-full);
+      background: #FEF3CD;
+      color: #856404;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #323232;
+      color: #fff;
+      padding: 11px 22px;
+      border-radius: var(--radius-full);
+      font-size: 14px;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 9999;
+      white-space: nowrap;
+      box-shadow: var(--shadow-md);
+      pointer-events: none;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    @media (max-width: 520px) {
+      .container { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+<div class="container">
+
+  <!-- ── HOME ── -->
+  <div id="home" class="screen active">
+    <div style="padding: 52px 32px; display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; flex: 1; justify-content: center;">
+      <div class="home-logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
+            <rect x="3" y="2" width="14" height="16" rx="2" stroke="#fff" stroke-width="1.5"/>
+            <line x1="6" y1="7" x2="14" y2="7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="6" y1="10" x2="14" y2="10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="6" y1="13" x2="11" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        내용증명
+      </div>
+
+      <div class="home-headline">
+        <h1>말만 하면<br><span>내용증명</span>이 완성됩니다</h1>
+        <p>AI가 대화로 상황을 파악하고<br>법적 효력 있는 문서를 자동으로 만들어드려요</p>
+      </div>
+
+      <button class="home-cta" onclick="startChat()">내용증명 작성 시작하기</button>
+
+      <div class="home-divider">자주 쓰이는 유형</div>
+
+      <div class="home-tags">
+        <span class="tag">월세 미납</span>
+        <span class="tag">계약 해지</span>
+        <span class="tag">물품 대금</span>
+        <span class="tag">손해배상</span>
+        <span class="tag">임금 미지급</span>
+        <span class="tag">보증금 반환</span>
+      </div>
+
+      <div class="home-notice">
+        ⚠️ 본 서비스는 참고용 문서를 자동 생성합니다. 중요한 법적 사안은 법률 전문가와 상담하시기 바랍니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CHAT ── -->
+  <div id="chat" class="screen">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <button class="btn-back" onclick="goHome()">← 처음으로</button>
+        <span class="chat-title">내용증명 작성</span>
+      </div>
+      <span class="chat-step" id="stepLabel">1 / 6</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width: 16%;"></div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="chat-input-wrap">
+      <textarea
+        class="chat-input"
+        id="chatInput"
+        rows="1"
+        placeholder="메시지를 입력하세요..."
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+          <path d="M13.5 8L2.5 2.5l3.5 5.5-3.5 5.5L13.5 8z" fill="#fff"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── RESULT ── -->
+  <div id="result" class="screen">
+    <div class="result-top">
+      <div class="result-check">
+        <svg width="26" height="26" fill="none" viewBox="0 0 26 26">
+          <path d="M5 13.5l5.5 5.5L21 7" stroke="#34A853" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>내용증명이 완성되었습니다</h2>
+      <p>문서를 확인하고 PDF로 저장하세요</p>
+    </div>
+
+    <div class="result-body">
+      <div>
+        <div class="section-label">문서 미리보기</div>
+        <div class="doc-preview">
+          <div class="doc-body" id="docBody"></div>
+        </div>
+      </div>
+
+      <div class="action-btns">
+        <button class="btn-primary" onclick="downloadPDF()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+            <path d="M8 2v8m0 0l-3-3m3 3l3-3M2 12.5v.5a1 1 0 001 1h10a1 1 0 001-1v-.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          PDF 다운로드
+        </button>
+        <button class="btn-secondary" onclick="restartChat()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+            <path d="M2 8a6 6 0 1110.9-3.4M2 4v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          새로 작성하기
+        </button>
+      </div>
+
+      <div>
+        <div class="section-label">기관에 제출하기</div>
+        <div class="agency-grid">
+          <button class="agency-btn" onclick="showToast('우체국 전자내용증명 연동 준비 중')">
+            <div class="agency-badge">준비 중</div>
+            <div class="agency-name">우체국</div>
+            <div class="agency-desc">전자내용증명 발송</div>
+          </button>
+          <button class="agency-btn" onclick="showToast('법원 연동 준비 중')">
+            <div class="agency-badge">준비 중</div>
+            <div class="agency-name">법원</div>
+            <div class="agency-desc">소장·신청서 제출</div>
+          </button>
+          <button class="agency-btn" onclick="showToast('법률 플랫폼 연동 준비 중')">
+            <div class="agency-badge">준비 중</div>
+            <div class="agency-name">법률 플랫폼</div>
+            <div class="agency-desc">변호사 연결</div>
+          </button>
+          <button class="agency-btn" onclick="showToast('민원24 연동 준비 중')">
+            <div class="agency-badge">준비 중</div>
+            <div class="agency-name">민원24</div>
+            <div class="agency-desc">정부 민원 접수</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STEPS = [
+  { key: 'situation', label: '1 / 6', progress: 16 },
+  { key: 'amount',    label: '2 / 6', progress: 33 },
+  { key: 'date',      label: '3 / 6', progress: 50 },
+  { key: 'receiver',  label: '4 / 6', progress: 66 },
+  { key: 'sender',    label: '5 / 6', progress: 83 },
+  { key: 'deadline',  label: '6 / 6', progress: 100 },
+];
+
+const PROMPTS = {
+  situation: {
+    text: '안녕하세요! 어떤 상황인지 편하게 말씀해 주세요.\n예) 월세를 못 받았어요, 대금을 안 줘요, 계약을 어겼어요',
+    quick: ['월세 미납', '물품 대금 미지급', '계약 위반', '임금 체불', '보증금 미반환']
+  },
+  amount: {
+    text: '관련 금액이 얼마인가요?',
+    quick: ['50만원', '100만원', '200만원', '500만원', '1,000만원']
+  },
+  date: {
+    text: '언제부터 문제가 시작되었나요?',
+    quick: ['2026년 1월', '2026년 2월', '2026년 3월', '2025년 12월']
+  },
+  receiver: {
+    text: '상대방(수신인)의 이름과 주소를 알려주세요.\n예) 홍길동 / 서울시 강남구 역삼동 123',
+    quick: []
+  },
+  sender: {
+    text: '발신인(본인)의 이름과 연락처를 알려주세요.\n예) 김철수 / 010-1234-5678',
+    quick: []
+  },
+  deadline: {
+    text: '이행 기한을 언제로 할까요?\n기한 내 미이행 시 법적 조치를 예고합니다.',
+    quick: ['7일 이내', '14일 이내', '1개월 이내', '즉시']
+  }
+};
+
+let state = {};
+let currentStep = 0;
+let isTyping = false;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startChat() {
+  state = {};
+  currentStep = 0;
+  document.getElementById('messages').innerHTML = '';
+  show('chat');
+  updateProgress();
+  setTimeout(() => botMessage(PROMPTS.situation.text, PROMPTS.situation.quick), 350);
+}
+
+function goHome() { show('home'); }
+function restartChat() { startChat(); }
+
+function updateProgress() {
+  const step = STEPS[Math.min(currentStep, STEPS.length - 1)];
+  document.getElementById('stepLabel').textContent = step.label;
+  document.getElementById('progressFill').style.width = step.progress + '%';
+}
+
+function addMsg(role, text) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  const avatar = role === 'bot' ? 'AI' : '나';
+  el.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-bubble">${text.replace(/\n/g, '<br>')}</div>
+  `;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+function botMessage(text, quickReplies = []) {
+  isTyping = true;
+  document.getElementById('sendBtn').disabled = true;
+  document.getElementById('chatInput').disabled = true;
+
+  const msgs = document.getElementById('messages');
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg bot';
+  typingEl.id = 'typing-indicator';
+  typingEl.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-bubble">
+      <div class="typing">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    </div>`;
+  msgs.appendChild(typingEl);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const delay = 700 + Math.random() * 400;
+
+  setTimeout(() => {
+    typingEl.remove();
+
+    const el = document.createElement('div');
+    el.className = 'msg bot';
+    let html = `<div class="msg-avatar">AI</div><div class="msg-bubble">${text.replace(/\n/g, '<br>')}`;
+    if (quickReplies.length > 0) {
+      html += `<div class="quick-btns">` +
+        quickReplies.map(q => `<button class="quick-btn" onclick="quickReply('${q}')">${q}</button>`).join('') +
+        `</div>`;
+    }
+    html += `</div>`;
+    el.innerHTML = html;
+    msgs.appendChild(el);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    isTyping = false;
+    document.getElementById('sendBtn').disabled = false;
+    document.getElementById('chatInput').disabled = false;
+    document.getElementById('chatInput').focus();
+  }, delay);
+}
+
+function quickReply(val) {
+  if (isTyping) return;
+  document.getElementById('chatInput').value = val;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+
+  isTyping = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMsg('user', text);
+
+  const stepKey = STEPS[currentStep].key;
+  state[stepKey] = text;
+
+  currentStep++;
+  updateProgress();
+
+  if (currentStep >= STEPS.length) {
+    setTimeout(() => {
+      buildDocument();
+      show('result');
+    }, 600);
+  } else {
+    const next = PROMPTS[STEPS[currentStep].key];
+    botMessage(next.text, next.quick || []);
+  }
+}
+
+function buildDocument() {
+  const today = new Date();
+  const dateStr = today.getFullYear() + '년 ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
+
+  const situation = state.situation || '';
+  const amount    = state.amount    || '';
+  const date      = state.date      || '';
+  const receiver  = state.receiver  || '';
+  const sender    = state.sender    || '';
+  const deadline  = state.deadline  || '';
+
+  const plain =
+`내  용  증  명
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+수 신 인: ${receiver}
+발 신 인: ${sender}
+작 성 일: ${dateStr}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+제목: ${situation} 관련 이행 촉구
+
+귀하는 ${date}부터 현재까지 아래 사항을
+이행하지 않고 있습니다.
+
+  - 사안: ${situation}
+  - 금액: ${amount}
+
+이에 본인은 아래와 같이 요구합니다.
+
+  1. 해당 사항의 즉각적인 이행
+  2. 이행 기한: ${deadline}
+
+기한 내 이행하지 않을 경우,
+관련 법령에 따른 법적 조치(민사소송,
+지급명령 신청 등)를 취할 수 있음을
+알립니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${dateStr}
+
+발신인: ${sender}  (서명 또는 인)`;
+
+  window._docPlain = plain;
+  window._docMeta  = { receiver, sender, situation, amount, date, deadline, dateStr };
+
+  const highlighted = plain
+    .replace(new RegExp(escapeRegex(receiver), 'g'), `<span class="doc-highlight">${receiver}</span>`)
+    .replace(new RegExp(escapeRegex(sender),   'g'), `<span class="doc-highlight">${sender}</span>`)
+    .replace(new RegExp(escapeRegex(amount),   'g'), `<span class="doc-highlight">${amount}</span>`)
+    .replace(new RegExp(escapeRegex(deadline), 'g'), `<span class="doc-highlight">${deadline}</span>`);
+
+  document.getElementById('docBody').innerHTML = highlighted.replace(/\n/g, '<br>');
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function downloadPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const plain = window._docPlain || '문서 내용 없음';
+    const lines = plain.split('\n');
+
+    doc.setFont('helvetica');
+    doc.setFontSize(14);
+    doc.setTextColor(26, 115, 232);
+    doc.text('NAEYONG-JEUNGMYEONG', 105, 18, { align: 'center' });
+
+    doc.setFontSize(10.5);
+    doc.setTextColor(40, 40, 40);
+
+    let y = 30;
+    lines.forEach(line => {
+      if (y > 272) { doc.addPage(); y = 20; }
+      if (line === '') { y += 4; return; }
+      const wrapped = doc.splitTextToSize(line, 170);
+      wrapped.forEach(wl => {
+        doc.text(wl, 20, y);
+        y += 6;
+      });
+    });
+
+    doc.save('내용증명.pdf');
+    showToast('PDF가 저장되었습니다');
+  } catch(e) {
+    showToast('PDF 생성 오류: ' + e.message);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
