@@ -11,16 +11,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue: #5b9bf8;
-      --blue-dark: #4a86e8;
-      --blue-light: rgba(91,155,248,0.15);
+      --blue: #437DCF;
+      --blue-dark: #3569b5;
+      --blue-light: rgba(67,125,207,0.15);
       --green: #4ade80;
       --green-light: rgba(74,222,128,0.15);
       --text: #e8eaf0;
       --text-secondary: #9095a8;
       --text-tertiary: #5c6070;
-      --bg: #13151e;
-      --bg-secondary: #1a1d2a;
+      --bg: #1A1C1E;
+      --bg-secondary: #222427;
       --border: rgba(255,255,255,0.08);
       --border-hover: rgba(255,255,255,0.16);
       --radius-sm: 8px;
@@ -34,7 +34,7 @@
     html, body {
       height: 100%;
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0e1018;
+      background: #1A1C1E;
       color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
@@ -111,7 +111,7 @@
     }
 
     .home-cta {
-      background: var(--blue);
+      background: #437DCF;
       color: #fff;
       border: none;
       padding: 15px 44px;
@@ -121,17 +121,25 @@
       cursor: pointer;
       font-family: inherit;
       transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 4px 20px rgba(91,155,248,0.35);
+      box-shadow: 0 4px 20px rgba(67,125,207,0.35);
       letter-spacing: -0.01em;
     }
 
     .home-cta:hover {
-      background: var(--blue-dark);
+      background: #3569b5;
       transform: translateY(-2px);
-      box-shadow: 0 6px 28px rgba(91,155,248,0.45);
+      box-shadow: 0 6px 28px rgba(67,125,207,0.45);
     }
 
     .home-cta:active { transform: scale(0.97); }
+
+    .home-headline {
+      margin-top: -14px;
+    }
+
+    .home-cta {
+      margin-bottom: 28px;
+    }
 
     .home-divider {
       font-size: 12px;
@@ -158,20 +166,22 @@
     }
 
     .tag {
-      background: var(--bg-secondary);
+      background: rgba(255,255,255,0.06);
       color: var(--text-secondary);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255,255,255,0.12);
       padding: 6px 14px;
       border-radius: var(--radius-full);
       font-size: 13px;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
       cursor: default;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .tag:hover {
-      border-color: var(--blue);
-      color: var(--blue);
-      background: var(--blue-light);
+      background: rgba(67,125,207,0.2);
+      border-color: rgba(67,125,207,0.4);
+      color: #7eb8ff;
     }
 
     .home-notice {
@@ -210,23 +220,35 @@
     }
 
     .btn-back {
-      background: none;
-      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       cursor: pointer;
-      color: var(--text-secondary);
+      color: rgba(255, 255, 255, 0.75);
       font-size: 13px;
       font-family: inherit;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      padding: 6px 12px;
-      border-radius: var(--radius-full);
-      transition: all 0.15s;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
     }
 
     .btn-back:hover {
-      background: var(--bg-secondary);
-      border-color: var(--border-hover);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.28);
+      color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .btn-back:active {
+      transform: scale(0.93);
     }
 
     .chat-title {
@@ -237,11 +259,14 @@
 
     .chat-step {
       font-size: 12px;
-      color: var(--blue);
-      background: var(--blue-light);
+      color: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
       padding: 4px 12px;
       border-radius: var(--radius-full);
       font-weight: 500;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .progress-bar {
@@ -251,7 +276,7 @@
 
     .progress-fill {
       height: 100%;
-      background: var(--blue);
+      background: #DAE6EF;
       transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -291,20 +316,17 @@
     }
 
     .msg.bot .msg-avatar {
-      background: var(--blue-light);
-      color: var(--blue);
+      display: none;
     }
 
     .msg.user .msg-avatar {
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
+      display: none;
     }
 
     .msg-bubble {
       max-width: 78%;
-      padding: 11px 15px;
-      border-radius: 18px;
+      padding: 16px 22px;
+      border-radius: 30px;
       font-size: 14px;
       line-height: 1.65;
       color: var(--text);
@@ -312,14 +334,14 @@
 
     .msg.bot .msg-bubble {
       background: var(--bg-secondary);
-      border-radius: 4px 18px 18px 18px;
-      border: 1px solid var(--border);
+      border-radius: 6px 30px 30px 30px;
     }
 
     .msg.user .msg-bubble {
-      background: var(--blue);
+      background: #226DBF;
       color: #fff;
-      border-radius: 18px 4px 18px 18px;
+      border-radius: 30px 6px 30px 30px;
+      padding: 11px 15px;
     }
 
     .quick-btns {
@@ -330,19 +352,23 @@
     }
 
     .quick-btn {
-      background: var(--bg);
-      border: 1px solid var(--blue);
-      color: var(--blue);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.75);
       padding: 5px 13px;
       border-radius: var(--radius-full);
       font-size: 13px;
       cursor: pointer;
       font-family: inherit;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .quick-btn:hover {
-      background: var(--blue-light);
+      background: rgba(255,255,255,0.15);
+      border-color: rgba(255,255,255,0.7);
+      color: #fff;
     }
 
     .typing {
@@ -395,9 +421,9 @@
     }
 
     .chat-input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
-      background: var(--bg);
+      border-color: rgba(255,255,255,0.35);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+      background: var(--bg-secondary);
     }
 
     .chat-input::placeholder { color: var(--text-tertiary); }
@@ -406,20 +432,26 @@
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      border: none;
-      background: var(--blue);
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       cursor: pointer;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 2px 12px rgba(91,155,248,0.35);
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
     }
 
-    .send-btn:hover { background: var(--blue-dark); }
+    .send-btn:hover {
+      background: rgba(255,255,255,0.25);
+      border-color: rgba(255,255,255,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.5);
+    }
     .send-btn:active { transform: scale(0.92); }
-    .send-btn:disabled { background: var(--border); box-shadow: none; cursor: default; }
+    .send-btn:disabled { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.08); box-shadow: none; cursor: default; }
 
     /* ══════════════════════════════
        RESULT
@@ -492,7 +524,7 @@
     .action-btns { display: flex; flex-direction: column; gap: 10px; }
 
     .btn-primary {
-      background: var(--blue);
+      background: #437DCF;
       color: #fff;
       border: none;
       padding: 15px;
@@ -506,15 +538,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 16px rgba(91,155,248,0.3);
+      box-shadow: 0 4px 16px rgba(67,125,207,0.3);
     }
 
-    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-primary:hover { background: #3569b5; }
     .btn-primary:active { transform: scale(0.98); }
 
     .btn-secondary {
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
       color: var(--text);
       padding: 15px;
       border-radius: var(--radius-md);
@@ -522,16 +554,18 @@
       font-weight: 500;
       cursor: pointer;
       font-family: inherit;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .btn-secondary:hover {
-      background: var(--bg-secondary);
-      border-color: var(--border-hover);
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
     }
 
     .agency-grid {
@@ -541,19 +575,22 @@
     }
 
     .agency-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: var(--radius-md);
-      padding: 14px 12px;
+      padding: 14px 16px;
       cursor: pointer;
       font-family: inherit;
       text-align: left;
-      transition: all 0.15s;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .agency-btn:hover {
-      border-color: var(--blue);
-      background: var(--blue-light);
+      background: rgba(67,125,207,0.18);
+      border-color: rgba(67,125,207,0.4);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
     }
 
     .agency-name {
@@ -563,9 +600,18 @@
       margin-bottom: 3px;
     }
 
+    .agency-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 3px;
+      margin-left: 5px;
+    }
+
     .agency-desc {
       font-size: 11px;
       color: var(--text-secondary);
+      margin-left: 5px;
     }
 
     .agency-badge {
@@ -618,25 +664,17 @@
   <div id="home" class="screen active">
     <div style="padding: 52px 32px; display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; flex: 1; justify-content: center;">
       <div class="home-logo">
-        <div class="logo-icon">
-          <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-            <rect x="3" y="2" width="14" height="16" rx="2" stroke="#fff" stroke-width="1.5"/>
-            <line x1="6" y1="7" x2="14" y2="7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="6" y1="10" x2="14" y2="10" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-            <line x1="6" y1="13" x2="11" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        내용증명
+        내용증명, 이제 어렵지 않아요
       </div>
 
       <div class="home-headline">
         <h1>채팅으로 간편하게 작성하는<br><span>내용증명</span></h1>
-        <p>대화로 문서가 완성되고 제출도 할 수 있어요</p>
+        <p>채팅으로 문서를 완성하고 기관에 제출도 할 수 있어요</p>
       </div>
 
       <button class="home-cta" onclick="startChat()">5분 안에 완성하기</button>
 
-      <div class="home-divider">자주 쓰이는 유형</div>
+      <div class="home-divider">자주 쓰이는 내용증명</div>
 
       <div class="home-tags">
         <span class="tag">월세 미납</span>
@@ -655,7 +693,7 @@
   <div id="chat" class="screen">
     <div class="chat-header">
       <div class="chat-header-left">
-        <button class="btn-back" onclick="goHome()">← 처음으로</button>
+        <button class="btn-back" onclick="goHome()"><svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <span class="chat-title">내용증명 작성</span>
       </div>
       <span class="chat-step" id="stepLabel">1 / 6</span>
@@ -664,7 +702,7 @@
       <div class="progress-fill" id="progressFill" style="width: 16%;"></div>
     </div>
     <div class="messages" id="messages"></div>
-    <div class="chat-input-wrap">
+    <div class="chat-input-wrap" id="chatInputWrap">
       <textarea
         class="chat-input"
         id="chatInput"
@@ -675,7 +713,7 @@
       ></textarea>
       <button class="send-btn" id="sendBtn" onclick="sendMessage()">
         <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
-          <path d="M13.5 8L2.5 2.5l3.5 5.5-3.5 5.5L13.5 8z" fill="#fff"/>
+          <path d="M8 13V3M3 8l5-5 5 5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
     </div>
@@ -824,6 +862,17 @@ function addMsg(role, text) {
   return el;
 }
 
+function setInputLocked(locked) {
+  const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const wrap = document.getElementById('chatInputWrap');
+  input.disabled = locked;
+  sendBtn.disabled = locked;
+  input.placeholder = locked ? '위에서 선택해 주세요' : '메시지를 입력하세요...';
+  wrap.style.opacity = locked ? '0.4' : '1';
+  wrap.style.pointerEvents = locked ? 'none' : 'auto';
+}
+
 function botMessage(text, quickReplies = []) {
   isTyping = true;
   document.getElementById('sendBtn').disabled = true;
@@ -864,9 +913,12 @@ function botMessage(text, quickReplies = []) {
     msgs.scrollTop = msgs.scrollHeight;
 
     isTyping = false;
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('chatInput').disabled = false;
-    document.getElementById('chatInput').focus();
+    const lockSteps = ['situation', 'amount', 'date'];
+    const currentKey = STEPS[currentStep] ? STEPS[currentStep].key : '';
+    setInputLocked(lockSteps.includes(currentKey));
+    if (!lockSteps.includes(currentKey)) {
+      document.getElementById('chatInput').focus();
+    }
   }, delay);
 }
 
@@ -888,6 +940,49 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
+function validateInput(stepKey, text) {
+  switch (stepKey) {
+    case 'situation':
+      return text.length >= 2;
+    case 'amount':
+      return /\d/.test(text);
+    case 'date':
+      return /\d|월|년|일|전|초|작년|올해|지난|최근|부터/.test(text);
+    case 'receiver': {
+      if (!text.includes('/')) return false;
+      const parts = text.split('/');
+      const name = parts[0].trim();
+      const address = parts[1].trim();
+      if (name.length < 2) return false;
+      if (/[a-zA-Z0-9]/.test(name)) return false;
+      return address.length >= 2;
+    }
+    case 'sender': {
+      if (!text.includes('/')) return false;
+      const parts = text.split('/');
+      const name = parts[0].trim();
+      const phone = parts[1].trim();
+      if (name.length < 2) return false;
+      if (/[a-zA-Z0-9]/.test(name)) return false;
+      if (/[a-zA-Z가-힣]/.test(phone)) return false;
+      return phone.length >= 2;
+    }
+    case 'deadline':
+      return /\d|일|주|월|즉시|바로|당장|이내/.test(text);
+    default:
+      return true;
+  }
+}
+
+const ERROR_MSGS = {
+  situation: '어떤 상황인지 조금 더 자세히 말씀해 주세요.\n예) 월세를 못 받았어요, 대금을 안 줘요',
+  amount: '금액을 숫자로 입력해 주세요.\n예) 120만원, 1,200,000원',
+  date: '날짜나 기간을 입력해 주세요.\n예) 2026년 1월, 3개월 전',
+  receiver: '이름과 주소를 "/" 로 구분해서 입력해 주세요.\n예) 홍길동 / 서울시 강남구 역삼동 123',
+  sender: '이름과 연락처를 "/" 로 구분해서 입력해 주세요.\n예) 김철수 / 010-1234-5678',
+  deadline: '기한을 입력해 주세요.\n예) 7일 이내, 2주 이내, 즉시',
+};
+
 function sendMessage() {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
@@ -900,20 +995,48 @@ function sendMessage() {
   addMsg('user', text);
 
   const stepKey = STEPS[currentStep].key;
-  state[stepKey] = text;
 
+  if (!validateInput(stepKey, text)) {
+    const prompt = PROMPTS[stepKey];
+    botMessage('❗ ' + ERROR_MSGS[stepKey], prompt.quick || []);
+    return;
+  }
+
+  state[stepKey] = text;
   currentStep++;
   updateProgress();
 
   if (currentStep >= STEPS.length) {
     setTimeout(() => {
-      buildDocument();
-      show('result');
+      showConfirm();
     }, 600);
   } else {
     const next = PROMPTS[STEPS[currentStep].key];
     botMessage(next.text, next.quick || []);
   }
+}
+
+function showConfirm() {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.innerHTML = `
+    <div class="msg-avatar">AI</div>
+    <div class="msg-bubble">
+      정확하게 입력하셨는지 확인해보세요
+      <div class="quick-btns" style="margin-top:12px;">
+        <button class="quick-btn" onclick="restartChat()" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);">다시 입력하기</button>
+        <button class="quick-btn" onclick="confirmAndShow()" style="background:#437DCF;border-color:#437DCF;color:#fff;">입력 완료</button>
+      </div>
+    </div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  setInputLocked(true);
+}
+
+function confirmAndShow() {
+  buildDocument();
+  show('result');
 }
 
 function buildDocument() {
