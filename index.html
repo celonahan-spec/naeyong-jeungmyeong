@@ -3,10 +3,11 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>내용증명 자동 작성</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -411,7 +412,7 @@
       border: 1px solid var(--border);
       border-radius: 24px;
       padding: 10px 16px;
-      font-size: 14px;
+      font-size: 16px;
       font-family: inherit;
       background: var(--bg-secondary);
       color: var(--text);
@@ -421,6 +422,7 @@
       max-height: 100px;
       overflow-y: auto;
       transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
     }
 
     .chat-input:focus {
@@ -1106,36 +1108,106 @@ function escapeRegex(str) {
 }
 
 function downloadPDF() {
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const plain = window._docPlain || '문서 내용 없음';
-    const lines = plain.split('\n');
+  const meta = window._docMeta;
+  if (!meta) { showToast('먼저 문서를 완성해 주세요'); return; }
 
-    doc.setFont('helvetica');
-    doc.setFontSize(14);
-    doc.setTextColor(26, 115, 232);
-    doc.text('NAEYONG-JEUNGMYEONG', 105, 18, { align: 'center' });
+  showToast('PDF 생성 중...');
 
-    doc.setFontSize(10.5);
-    doc.setTextColor(40, 40, 40);
+  const today = new Date();
+  const dateStr = meta.dateStr;
 
-    let y = 30;
-    lines.forEach(line => {
-      if (y > 272) { doc.addPage(); y = 20; }
-      if (line === '') { y += 4; return; }
-      const wrapped = doc.splitTextToSize(line, 170);
-      wrapped.forEach(wl => {
-        doc.text(wl, 20, y);
-        y += 6;
-      });
+  // A4 비율의 숨겨진 HTML 요소 생성
+  const el = document.createElement('div');
+  el.style.cssText = `
+    position: fixed; left: -9999px; top: 0;
+    width: 794px; padding: 80px 80px 80px 80px;
+    background: #ffffff; color: #1a1a1a;
+    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+    font-size: 14px; line-height: 2; box-sizing: border-box;
+  `;
+
+  el.innerHTML = `
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <div style="text-align:center; margin-bottom: 40px; border-bottom: 2px solid #1a1a1a; padding-bottom: 24px;">
+      <h1 style="font-size:28px; font-weight:700; letter-spacing:0.3em; margin:0 0 8px;">내  용  증  명</h1>
+    </div>
+
+    <table style="width:100%; border-collapse:collapse; margin-bottom:32px; font-size:13px;">
+      <tr>
+        <td style="width:80px; padding:8px 0; font-weight:700; color:#555; vertical-align:top;">수 신 인</td>
+        <td style="padding:8px 16px;">${meta.receiver}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:700; color:#555; vertical-align:top; border-top:1px solid #eee;">발 신 인</td>
+        <td style="padding:8px 16px; border-top:1px solid #eee;">${meta.sender}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0; font-weight:700; color:#555; border-top:1px solid #eee;">작 성 일</td>
+        <td style="padding:8px 16px; border-top:1px solid #eee;">${dateStr}</td>
+      </tr>
+    </table>
+
+    <div style="border-top:2px solid #1a1a1a; border-bottom:1px solid #ddd; padding:16px 0; margin-bottom:32px;">
+      <p style="font-weight:700; font-size:15px; margin:0;">제목: ${meta.situation} 관련 이행 촉구</p>
+    </div>
+
+    <div style="font-size:13px; line-height:2.2; margin-bottom:40px;">
+      <p>귀하는 <strong>${meta.date}</strong>부터 현재까지 아래 사항을 이행하지 않고 있습니다.</p>
+      <br>
+      <p style="padding-left:20px;">- 사안: <strong>${meta.situation}</strong></p>
+      <p style="padding-left:20px;">- 금액: <strong>${meta.amount}</strong></p>
+      <br>
+      <p>이에 본인은 아래와 같이 요구합니다.</p>
+      <br>
+      <p style="padding-left:20px;">1. 해당 사항의 즉각적인 이행</p>
+      <p style="padding-left:20px;">2. 이행 기한: <strong>${meta.deadline}</strong></p>
+      <br>
+      <p>기한 내 이행하지 않을 경우, 관련 법령에 따른 법적 조치(민사소송, 지급명령 신청 등)를 취할 수 있음을 알립니다.</p>
+    </div>
+
+    <div style="border-top:2px solid #1a1a1a; padding-top:32px; text-align:right;">
+      <p style="margin-bottom:8px;">${dateStr}</p>
+      <p style="font-weight:700; font-size:15px;">${meta.sender} &nbsp;&nbsp; (서명 또는 인)</p>
+    </div>
+  `;
+
+  document.body.appendChild(el);
+
+  // 폰트 로딩 대기 후 캡처
+  setTimeout(() => {
+    html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: 794,
+      windowWidth: 794
+    }).then(canvas => {
+      document.body.removeChild(el);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdfW = 210;
+      const pdfH = (canvas.height * pdfW) / canvas.width;
+
+      if (pdfH <= 297) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+      } else {
+        let y = 0;
+        while (y < pdfH) {
+          pdf.addImage(imgData, 'JPEG', 0, -y, pdfW, pdfH);
+          y += 297;
+          if (y < pdfH) pdf.addPage();
+        }
+      }
+
+      pdf.save('내용증명.pdf');
+      showToast('PDF가 저장되었습니다');
+    }).catch(err => {
+      document.body.removeChild(el);
+      showToast('PDF 생성 오류: ' + err.message);
     });
-
-    doc.save('내용증명.pdf');
-    showToast('PDF가 저장되었습니다');
-  } catch(e) {
-    showToast('PDF 생성 오류: ' + e.message);
-  }
+  }, 800);
 }
 
 function showToast(msg) {
