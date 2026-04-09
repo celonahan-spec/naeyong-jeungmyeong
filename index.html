@@ -4,7 +4,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>내용증명 자동 작성</title>
+  <title>셀프 내용증명 - 채팅으로 간편하게</title>
+  <meta name="description" content="채팅으로 간편하게 만드는 셀프 내용증명. 5분 안에 완성하고 기관에 제출까지!">
+  <meta property="og:title" content="셀프 내용증명 - 이제 어렵지 않아요">
+  <meta property="og:description" content="채팅으로 간편하게 만드는 셀프 내용증명. 5분 안에 완성하고 기관에 제출까지!">
+  <meta property="og:image" content="https://raw.githubusercontent.com/celonahan-spec/naeyong-jeungmyeong/main/ing.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="셀프 내용증명 - 이제 어렵지 않아요">
+  <meta name="twitter:description" content="채팅으로 간편하게 만드는 셀프 내용증명. 5분 안에 완성하고 기관에 제출까지!">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/celonahan-spec/naeyong-jeungmyeong/main/ing.png">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -177,7 +188,7 @@
       border-radius: var(--radius-full);
       font-size: 13px;
       transition: all 0.2s ease;
-      cursor: default;
+      cursor: pointer;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
     }
@@ -657,6 +668,11 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+    @keyframes slideUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
     @media (max-width: 520px) {
       .container { box-shadow: none; }
     }
@@ -674,7 +690,7 @@
       </div>
 
       <div class="home-headline">
-        <h1>채팅으로 간편하게 만드는<br><span>내용증명</span></h1>
+        <h1>채팅으로 간편하게 만드는<br><span>셀프 내용증명</span></h1>
         <p>채팅으로 문서를 만들고 기관에 제출해요</p>
       </div>
 
@@ -683,12 +699,12 @@
       <div class="home-divider">자주 쓰이는 내용증명</div>
 
       <div class="home-tags">
-        <span class="tag">월세 미납</span>
-        <span class="tag">계약 해지</span>
-        <span class="tag">물품 대금</span>
-        <span class="tag">손해배상</span>
-        <span class="tag">임금 미지급</span>
-        <span class="tag">보증금 반환</span>
+        <span class="tag" onclick="startChatWith('월세 미납')">월세 미납</span>
+        <span class="tag" onclick="startChatWith('계약 해지')">계약 해지</span>
+        <span class="tag" onclick="startChatWith('물품 대금 미지급')">물품 대금</span>
+        <span class="tag" onclick="startChatWith('손해배상')">손해배상</span>
+        <span class="tag" onclick="startChatWith('임금 미지급')">임금 미지급</span>
+        <span class="tag" onclick="startChatWith('보증금 미반환')">보증금 반환</span>
       </div>
 
 
@@ -746,7 +762,7 @@
       </div>
 
       <div class="action-btns">
-        <button class="btn-primary" onclick="downloadPDF()">
+        <button class="btn-primary" onclick="showPDFViewer()">
           <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
             <path d="M8 2v8m0 0l-3-3m3 3l3-3M2 12.5v.5a1 1 0 001 1h10a1 1 0 001-1v-.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -782,6 +798,135 @@
           </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ── PDF VIEWER ── -->
+  <div id="pdfviewer" class="screen">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <button class="btn-back" onclick="show('result')">
+          <svg width="14" height="14" fill="none" viewBox="0 0 14 14">
+            <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="chat-title">문서 미리보기</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-secondary" onclick="downloadPDF()" style="padding:8px 16px;font-size:13px;border-radius:50px;">
+          저장하기
+        </button>
+        <button class="btn-primary" onclick="showAgencyModal()" style="padding:8px 16px;font-size:13px;border-radius:50px;">
+          제출하기
+        </button>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:24px 20px;background:var(--bg);">
+      <div id="pdfViewerContent" style="
+        background:#ffffff;color:#1a1a1a;
+        border-radius:12px;padding:48px 40px;
+        font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;
+        font-size:13px;line-height:2;
+        box-shadow:0 4px 24px rgba(0,0,0,0.3);
+      "></div>
+    </div>
+  </div>
+
+  <!-- ── AGENCY MODAL ── -->
+  <div id="agencyModal" style="
+    display:none; position:fixed; inset:0; z-index:999;
+    background:rgba(0,0,0,0.6); backdrop-filter:blur(6px);
+    align-items:flex-end; justify-content:center;
+  ">
+    <div style="
+      width:100%; max-width:520px;
+      background:#1e2130; border-radius:24px 24px 0 0;
+      padding:28px 24px 40px;
+      animation: slideUp 0.3s ease;
+    ">
+      <div style="width:36px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 24px;"></div>
+      <p style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;">제출할 기관을 선택해주세요</p>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;">선택한 기관으로 내용증명을 전송해요</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button onclick="submitToAgency('우체국')" style="
+          background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+          border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit;
+          text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;
+        " onmouseover="this.style.background='rgba(67,125,207,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+          <span style="font-size:22px;">📮</span>
+          <div>
+            <p style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 2px;">우체국</p>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0;">전자내용증명 발송</p>
+          </div>
+        </button>
+        <button onclick="submitToAgency('법원')" style="
+          background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+          border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit;
+          text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;
+        " onmouseover="this.style.background='rgba(67,125,207,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+          <span style="font-size:22px;">⚖️</span>
+          <div>
+            <p style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 2px;">법원</p>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0;">소장·신청서 제출</p>
+          </div>
+        </button>
+        <button onclick="submitToAgency('법률 플랫폼')" style="
+          background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+          border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit;
+          text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;
+        " onmouseover="this.style.background='rgba(67,125,207,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+          <span style="font-size:22px;">🏛️</span>
+          <div>
+            <p style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 2px;">법률 플랫폼</p>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0;">변호사 연결</p>
+          </div>
+        </button>
+        <button onclick="submitToAgency('민원24')" style="
+          background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+          border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit;
+          text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:14px;
+        " onmouseover="this.style.background='rgba(67,125,207,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+          <span style="font-size:22px;">🏢</span>
+          <div>
+            <p style="font-size:14px;font-weight:700;color:var(--text);margin:0 0 2px;">민원24</p>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0;">정부 민원 접수</p>
+          </div>
+        </button>
+      </div>
+      <button onclick="hideAgencyModal()" style="
+        width:100%;margin-top:16px;padding:14px;
+        background:transparent;border:1px solid rgba(255,255,255,0.12);
+        border-radius:14px;color:var(--text-secondary);
+        font-size:14px;font-family:inherit;cursor:pointer;
+      ">취소</button>
+    </div>
+  </div>
+
+  <!-- ── SUBMIT SUCCESS ── -->
+  <div id="submitSuccess" style="
+    display:none; position:fixed; inset:0; z-index:1000;
+    background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+    align-items:center; justify-content:center;
+  ">
+    <div style="
+      background:#1e2130; border-radius:24px;
+      padding:40px 32px; text-align:center;
+      width:calc(100% - 48px); max-width:360px;
+      animation: fadeUp 0.3s ease;
+    ">
+      <div style="
+        width:64px;height:64px;border-radius:50%;
+        background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+        display:flex;align-items:center;justify-content:center;
+        margin:0 auto 20px;font-size:28px;
+      ">✓</div>
+      <p style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;">제출되었습니다</p>
+      <p id="submittedAgencyName" style="font-size:14px;color:var(--text-secondary);margin-bottom:28px;"></p>
+      <button onclick="hideSubmitSuccess()" style="
+        width:100%;padding:14px;background:#437DCF;
+        border:none;border-radius:14px;color:#fff;
+        font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;
+      ">확인</button>
     </div>
   </div>
 
@@ -834,6 +979,27 @@ let isTyping = false;
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function startChatWith(situation) {
+  state = {};
+  currentStep = 0;
+  document.getElementById('messages').innerHTML = '';
+  show('chat');
+  updateProgress();
+
+  // 상황을 자동으로 입력하고 2단계로 진행
+  setTimeout(() => {
+    botMessage(PROMPTS.situation.text, PROMPTS.situation.quick);
+    setTimeout(() => {
+      addMsg('user', situation);
+      state['situation'] = situation;
+      currentStep++;
+      updateProgress();
+      const next = PROMPTS[STEPS[currentStep].key];
+      botMessage(next.text, next.quick || []);
+    }, 1000);
+  }, 350);
 }
 
 function startChat() {
@@ -1107,107 +1273,130 @@ function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function showPDFViewer() {
+  const meta = window._docMeta;
+  if (!meta) { showToast('먼저 문서를 완성해 주세요'); return; }
+
+  const viewer = document.getElementById('pdfViewerContent');
+  viewer.innerHTML = `
+    <div style="text-align:center;margin-bottom:36px;border-bottom:2px solid #1a1a1a;padding-bottom:24px;">
+      <h1 style="font-size:24px;font-weight:700;letter-spacing:0.3em;margin:0 0 6px;">내  용  증  명</h1>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:28px;font-size:13px;">
+      <tr>
+        <td style="width:72px;padding:8px 0;font-weight:700;color:#555;vertical-align:top;">수 신 인</td>
+        <td style="padding:8px 12px;">${meta.receiver}</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:8px 0;font-weight:700;color:#555;vertical-align:top;">발 신 인</td>
+        <td style="padding:8px 12px;">${meta.sender}</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:8px 0;font-weight:700;color:#555;">작 성 일</td>
+        <td style="padding:8px 12px;">${meta.dateStr}</td>
+      </tr>
+    </table>
+    <div style="border-top:2px solid #1a1a1a;border-bottom:1px solid #ddd;padding:14px 0;margin-bottom:28px;">
+      <p style="font-weight:700;font-size:14px;margin:0;">제목: ${meta.situation} 관련 이행 촉구</p>
+    </div>
+    <div style="font-size:13px;line-height:2.2;margin-bottom:40px;">
+      <p>귀하는 <strong>${meta.date}</strong>부터 현재까지 아래 사항을 이행하지 않고 있습니다.</p>
+      <br>
+      <p style="padding-left:16px;">- 사안: <strong>${meta.situation}</strong></p>
+      <p style="padding-left:16px;">- 금액: <strong>${meta.amount}</strong></p>
+      <br>
+      <p>이에 본인은 아래와 같이 요구합니다.</p>
+      <br>
+      <p style="padding-left:16px;">1. 해당 사항의 즉각적인 이행</p>
+      <p style="padding-left:16px;">2. 이행 기한: <strong>${meta.deadline}</strong></p>
+      <br>
+      <p>기한 내 이행하지 않을 경우, 관련 법령에 따른 법적 조치(민사소송, 지급명령 신청 등)를 취할 수 있음을 알립니다.</p>
+    </div>
+    <div style="border-top:2px solid #1a1a1a;padding-top:28px;text-align:right;">
+      <p style="margin-bottom:6px;">${meta.dateStr}</p>
+      <p style="font-weight:700;font-size:14px;">${meta.sender} &nbsp;&nbsp; (서명 또는 인)</p>
+    </div>
+  `;
+  show('pdfviewer');
+}
+
 function downloadPDF() {
   const meta = window._docMeta;
   if (!meta) { showToast('먼저 문서를 완성해 주세요'); return; }
 
   showToast('PDF 생성 중...');
 
-  const today = new Date();
-  const dateStr = meta.dateStr;
+  const el = document.getElementById('pdfViewerContent');
 
-  // A4 비율의 숨겨진 HTML 요소 생성
-  const el = document.createElement('div');
-  el.style.cssText = `
-    position: fixed; left: -9999px; top: 0;
-    width: 794px; padding: 80px 80px 80px 80px;
-    background: #ffffff; color: #1a1a1a;
-    font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-    font-size: 14px; line-height: 2; box-sizing: border-box;
-  `;
+  html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: '#ffffff',
+  }).then(canvas => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    const pdfW = 210;
+    const pdfH = (canvas.height * pdfW) / canvas.width;
 
-  el.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <div style="text-align:center; margin-bottom: 40px; border-bottom: 2px solid #1a1a1a; padding-bottom: 24px;">
-      <h1 style="font-size:28px; font-weight:700; letter-spacing:0.3em; margin:0 0 8px;">내  용  증  명</h1>
-    </div>
-
-    <table style="width:100%; border-collapse:collapse; margin-bottom:32px; font-size:13px;">
-      <tr>
-        <td style="width:80px; padding:8px 0; font-weight:700; color:#555; vertical-align:top;">수 신 인</td>
-        <td style="padding:8px 16px;">${meta.receiver}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; font-weight:700; color:#555; vertical-align:top; border-top:1px solid #eee;">발 신 인</td>
-        <td style="padding:8px 16px; border-top:1px solid #eee;">${meta.sender}</td>
-      </tr>
-      <tr>
-        <td style="padding:8px 0; font-weight:700; color:#555; border-top:1px solid #eee;">작 성 일</td>
-        <td style="padding:8px 16px; border-top:1px solid #eee;">${dateStr}</td>
-      </tr>
-    </table>
-
-    <div style="border-top:2px solid #1a1a1a; border-bottom:1px solid #ddd; padding:16px 0; margin-bottom:32px;">
-      <p style="font-weight:700; font-size:15px; margin:0;">제목: ${meta.situation} 관련 이행 촉구</p>
-    </div>
-
-    <div style="font-size:13px; line-height:2.2; margin-bottom:40px;">
-      <p>귀하는 <strong>${meta.date}</strong>부터 현재까지 아래 사항을 이행하지 않고 있습니다.</p>
-      <br>
-      <p style="padding-left:20px;">- 사안: <strong>${meta.situation}</strong></p>
-      <p style="padding-left:20px;">- 금액: <strong>${meta.amount}</strong></p>
-      <br>
-      <p>이에 본인은 아래와 같이 요구합니다.</p>
-      <br>
-      <p style="padding-left:20px;">1. 해당 사항의 즉각적인 이행</p>
-      <p style="padding-left:20px;">2. 이행 기한: <strong>${meta.deadline}</strong></p>
-      <br>
-      <p>기한 내 이행하지 않을 경우, 관련 법령에 따른 법적 조치(민사소송, 지급명령 신청 등)를 취할 수 있음을 알립니다.</p>
-    </div>
-
-    <div style="border-top:2px solid #1a1a1a; padding-top:32px; text-align:right;">
-      <p style="margin-bottom:8px;">${dateStr}</p>
-      <p style="font-weight:700; font-size:15px;">${meta.sender} &nbsp;&nbsp; (서명 또는 인)</p>
-    </div>
-  `;
-
-  document.body.appendChild(el);
-
-  // 폰트 로딩 대기 후 캡처
-  setTimeout(() => {
-    html2canvas(el, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff',
-      width: 794,
-      windowWidth: 794
-    }).then(canvas => {
-      document.body.removeChild(el);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const pdfW = 210;
-      const pdfH = (canvas.height * pdfW) / canvas.width;
-
-      if (pdfH <= 297) {
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-      } else {
-        let y = 0;
-        while (y < pdfH) {
-          pdf.addImage(imgData, 'JPEG', 0, -y, pdfW, pdfH);
-          y += 297;
-          if (y < pdfH) pdf.addPage();
-        }
+    if (pdfH <= 297) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    } else {
+      let y = 0;
+      while (y < pdfH) {
+        pdf.addImage(imgData, 'JPEG', 0, -y, pdfW, pdfH);
+        y += 297;
+        if (y < pdfH) pdf.addPage();
       }
+    }
 
-      pdf.save('내용증명.pdf');
+    const pdfBlob = pdf.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+    if (isIOS) {
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('열린 PDF에서 공유 버튼으로 저장하세요');
+    } else {
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = '내용증명.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       showToast('PDF가 저장되었습니다');
-    }).catch(err => {
-      document.body.removeChild(el);
-      showToast('PDF 생성 오류: ' + err.message);
-    });
-  }, 800);
+    }
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+  }).catch(err => {
+    showToast('PDF 생성 오류: ' + err.message);
+  });
+}
+
+function showAgencyModal() {
+  const modal = document.getElementById('agencyModal');
+  modal.style.display = 'flex';
+}
+
+function hideAgencyModal() {
+  document.getElementById('agencyModal').style.display = 'none';
+}
+
+function submitToAgency(name) {
+  hideAgencyModal();
+  document.getElementById('submittedAgencyName').textContent = name + '에 내용증명이 전송되었습니다';
+  const success = document.getElementById('submitSuccess');
+  success.style.display = 'flex';
+}
+
+function hideSubmitSuccess() {
+  document.getElementById('submitSuccess').style.display = 'none';
 }
 
 function showToast(msg) {
