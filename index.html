@@ -961,7 +961,7 @@ const PROMPTS = {
   },
   receiver: {
     text: '상대방(수신인)의 이름과 주소를 알려주세요.\n예) 홍길동 / 서울시 강남구 역삼동 123',
-    quick: []
+    quick: ['주소 입력하기', '주소를 몰라요']
   },
   sender: {
     text: '발신인(본인)의 이름과 연락처를 알려주세요.\n예) 김철수 / 010-1234-5678',
@@ -1097,6 +1097,24 @@ function botMessage(text, quickReplies = []) {
 
 function quickReply(val) {
   if (isTyping) return;
+
+  // 주소를 몰라요 → 이름만 입력 요청
+  if (val === '주소를 몰라요' && STEPS[currentStep] && STEPS[currentStep].key === 'receiver') {
+    addMsg('user', '주소를 몰라요');
+    botMessage('상대방 이름만 입력해 주세요.\n예) 홍길동', []);
+    state['_receiverNoAddress'] = true;
+    setInputLocked(false);
+    return;
+  }
+
+  // 주소 입력하기 → 기존 입력 방식 안내
+  if (val === '주소 입력하기' && STEPS[currentStep] && STEPS[currentStep].key === 'receiver') {
+    addMsg('user', '주소 입력하기');
+    botMessage('이름과 주소를 "/" 로 구분해서 입력해 주세요.\n예) 홍길동 / 서울시 강남구 역삼동 123', []);
+    setInputLocked(false);
+    return;
+  }
+
   document.getElementById('chatInput').value = val;
   sendMessage();
 }
@@ -1122,6 +1140,12 @@ function validateInput(stepKey, text) {
     case 'date':
       return /\d|월|년|일|전|초|작년|올해|지난|최근|부터/.test(text);
     case 'receiver': {
+      // 주소 모름 플로우: 이름만 검증
+      if (state['_receiverNoAddress']) {
+        if (text.length < 2) return false;
+        if (/[a-zA-Z0-9]/.test(text)) return false;
+        return true;
+      }
       if (!text.includes('/')) return false;
       const parts = text.split('/');
       const name = parts[0].trim();
@@ -1219,7 +1243,9 @@ function buildDocument() {
   const situation = state.situation || '';
   const amount    = state.amount    || '';
   const date      = state.date      || '';
-  const receiver  = state.receiver  || '';
+  const receiver  = state['_receiverNoAddress']
+    ? (state.receiver || '') + ' (주소 미상)'
+    : state.receiver  || '';
   const sender    = state.sender    || '';
   const deadline  = state.deadline  || '';
 
