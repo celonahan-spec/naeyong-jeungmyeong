@@ -1382,7 +1382,23 @@ function downloadPDF() {
     const blobUrl = URL.createObjectURL(pdfBlob);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-    if (isIOS) {
+    if (isIOS && navigator.share) {
+      const file = new File([pdfBlob], '내용증명.pdf', { type: 'application/pdf' });
+      navigator.share({
+        title: '내용증명',
+        files: [file]
+      }).then(() => {
+        showToast('저장이 완료되었습니다');
+      }).catch(() => {
+        // 공유 취소 시 fallback
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+    } else if (isIOS) {
       const a = document.createElement('a');
       a.href = blobUrl;
       a.target = '_blank';
@@ -1400,7 +1416,7 @@ function downloadPDF() {
       document.body.removeChild(a);
       showToast('PDF가 저장되었습니다');
     }
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
   }).catch(err => {
     showToast('PDF 생성 오류: ' + err.message);
   });
